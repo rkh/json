@@ -3,7 +3,7 @@ require 'rbconfig'
 include Config
 
 def fake_makefile(source)
-  warn "Build system not found: Installing the PURE variant of JSON instead."
+  puts "Build system not found: Installing the PURE variant of JSON instead."
   File.open('Makefile', 'w') do |mf|
     mf.puts <<EOT
 all:
@@ -22,6 +22,7 @@ distclean:
 realclean: distclean
 EOT
 	end
+  exit 42
 end
 
 CC = system(cc = CONFIG['CC'], '-v') && cc
@@ -39,7 +40,7 @@ if CC
     have_header("ruby/st.h") || have_header("st.h")
     have_header("ruby/re.h") || have_header("re.h")
     have_header("ruby/encoding.h")
-    warn "Build system found: Installing the EXT variant of JSON."
+    puts "Build system found: Installing the EXT variant of JSON."
     create_makefile 'generator'
   else
     fake_makefile 'generator'
