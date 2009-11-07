@@ -2,26 +2,12 @@ require 'mkmf'
 require 'rbconfig'
 include Config
 
-CC = system(cc = CONFIG['CC'], '-v') && cc
-if CC
-	if CC =~ /gcc/
-		$CFLAGS += ' -Wall'
-		#$CFLAGS += ' -O0 -ggdb'
-	end
-
-	if (method(:have_header) rescue nil)
-		have_header("ruby/st.h") || have_header("st.h")
-		have_header("re.h")
-	end
-
-	warn "Build system found: Installing the EXT variant of JSON."
-  create_makefile 'parser'
-else
-	warn "Build system not found: Installing the PURE variant of JSON instead."
-	File.open('Makefile', 'w') do |mf|
-		mf.puts <<EOT
+def fake_makefile(source)
+  warn "Build system not found: Installing the PURE variant of JSON instead."
+  File.open('Makefile', 'w') do |mf|
+    mf.puts <<EOT
 all:
-	ruby -e 'File.open("parser.#{CONFIG['DLEXT']}", "wb") {}'
+	ruby -e 'File.open("#{source}.#{CONFIG['DLEXT']}", "wb") {}'
 
 static:
 
@@ -36,4 +22,27 @@ distclean:
 realclean: distclean
 EOT
 	end
+end
+
+CC = system(cc = CONFIG['CC'], '-v') && cc
+if CC
+  unless $CFLAGS.gsub!(/ -O[\dsz]?/, ' -O3')
+    $CFLAGS << ' -O3'
+  end
+
+  if CC =~ /gcc/
+    $CFLAGS << ' -Wall'
+    #$CFLAGS.gsub!(/ -O[\dsz]?/, ' -O0 -ggdb')
+  end
+
+  if (method(:have_header) rescue nil)
+    have_header("ruby/st.h") || have_header("st.h")
+    have_header("re.h")
+    warn "Build system found: Installing the EXT variant of JSON."
+    create_makefile 'parser'
+  else
+    fake_makefile 'parser'
+  end
+else
+  fake_makefile 'parser'
 end
