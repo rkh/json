@@ -241,6 +241,11 @@ if defined?(Gem) and defined?(Rake::GemPackageTask) and defined?(Rake::Extension
     s.rubyforge_project = "json"
   end
 
+  desc 'generates gemspec'
+  task :gemspec do
+    File.open('json.gemspec', 'w') { |f| f << spec_ext.to_ruby }
+  end
+
   Rake::GemPackageTask.new(spec_ext) do |pkg|
     pkg.need_tar      = true
     pkg.package_files = PKG_FILES
