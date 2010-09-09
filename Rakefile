@@ -16,7 +16,7 @@ require 'rake/clean'
 CLOBBER.include Dir['benchmarks/data/*.{dat,log}'], FileList['**/*.rbc']
 CLEAN.include FileList['diagrams/*.*'], 'doc', 'coverage', 'tmp',
   FileList["ext/**/{Makefile,mkmf.log}"],
-  FileList["{ext,lib}/**/*.{so,bundle,#{CONFIG['DLEXT']},o,obj,pdb,lib,manifest,exp,def}"]
+  FileList["{ext,lib}/**/*.{so,bundle,#{MAKEFILE_CONFIG['DLEXT']},o,obj,pdb,lib,manifest,exp,def}"]
 
 MAKE = ENV['MAKE'] || %w[gmake make].find { |c| system(c, '-v') }
 PKG_NAME          = 'json'
@@ -25,11 +25,11 @@ PKG_VERSION       = File.read('VERSION').chomp
 PKG_FILES         = FileList["**/*"].exclude(/CVS|pkg|tmp|coverage|Makefile|\.nfs\./).exclude(/\.(so|bundle|o|#{CONFIG['DLEXT']})$/)
 EXT_ROOT_DIR      = 'ext/json/ext'
 EXT_PARSER_DIR    = "#{EXT_ROOT_DIR}/parser"
-EXT_PARSER_DL     = "#{EXT_PARSER_DIR}/parser.#{CONFIG['DLEXT']}"
+EXT_PARSER_DL     = "#{EXT_PARSER_DIR}/parser.#{MAKEFILE_CONFIG['DLEXT']}"
 EXT_PARSER_SRC    = "#{EXT_PARSER_DIR}/parser.c"
 PKG_FILES << EXT_PARSER_SRC
 EXT_GENERATOR_DIR = "#{EXT_ROOT_DIR}/generator"
-EXT_GENERATOR_DL  = "#{EXT_GENERATOR_DIR}/generator.#{CONFIG['DLEXT']}"
+EXT_GENERATOR_DL  = "#{EXT_GENERATOR_DIR}/generator.#{MAKEFILE_CONFIG['DLEXT']}"
 EXT_GENERATOR_SRC = "#{EXT_GENERATOR_DIR}/generator.c"
 RAGEL_CODEGEN     = %w[rlcodegen rlgen-cd ragel].find { |c| system(c, '-v') }
 RAGEL_DOTGEN      = %w[rlgen-dot rlgen-cd ragel].find { |c| system(c, '-v') }
@@ -53,7 +53,7 @@ end
 task :install_ext_really do
   sitearchdir = CONFIG["sitearchdir"]
   cd 'ext' do
-    for file in Dir["json/ext/*.#{CONFIG['DLEXT']}"]
+    for file in Dir["json/ext/*.#{MAKEFILE_CONFIG['DLEXT']}"]
       d = File.join(sitearchdir, file)
       mkdir_p File.dirname(d)
       install(file, d)
@@ -79,7 +79,7 @@ file EXT_PARSER_DL => EXT_PARSER_SRC do
     myruby 'extconf.rb'
     sh MAKE
   end
-  cp "#{EXT_PARSER_DIR}/parser.#{CONFIG['DLEXT']}", EXT_ROOT_DIR
+  cp "#{EXT_PARSER_DIR}/parser.#{MAKEFILE_CONFIG['DLEXT']}", EXT_ROOT_DIR
 end
 
 file EXT_GENERATOR_DL => EXT_GENERATOR_SRC do
@@ -87,7 +87,7 @@ file EXT_GENERATOR_DL => EXT_GENERATOR_SRC do
     myruby 'extconf.rb'
     sh MAKE
   end
-  cp "#{EXT_GENERATOR_DIR}/generator.#{CONFIG['DLEXT']}", EXT_ROOT_DIR
+  cp "#{EXT_GENERATOR_DIR}/generator.#{MAKEFILE_CONFIG['DLEXT']}", EXT_ROOT_DIR
 end
 
 desc "Generate parser with ragel"
